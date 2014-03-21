@@ -11,6 +11,10 @@ import Data.Array
 type SValue = ((Int, Int), Int)
 type SBoard = Array (Int, Int) Int
 
+-- true if the character should be ignored
+ignoreCharPred :: Char -> Bool
+ignoreCharPred c = or [c == ' ', c == '\n', c == '\r', c == '|', c == '-', c == '+']
+
 -- determine if the current entry is valid
 entryPred :: (Int, Int) -> Char -> Bool
 entryPred (r,c) v = and [r < 9, r >= 0, c < 9, c >= 0, val < 10, val >= 0]
@@ -27,7 +31,7 @@ getEntry _ _ = Nothing
 -- skips any whitespace characters
 getSudokuVals' :: [Char] -> (Int, Int) -> Maybe [SValue] -> Maybe [SValue]
 getSudokuVals' [] _ acc = acc
-getSudokuVals' (v:vn) coord acc | or [v == ' ', v == '\n', v == '\r'] = getSudokuVals' vn coord acc
+getSudokuVals' (v:vn) coord acc | ignoreCharPred v = getSudokuVals' vn coord acc
 getSudokuVals' (v:vn) (r,c) acc = getSudokuVals' vn (nextR, nextC) lst
                                   where
                                     nextC = (c+1) `mod` 9
