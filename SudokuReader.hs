@@ -1,3 +1,5 @@
+-- Author: David Fonenot, 2014 fontenod@onid.oregonstate.edu
+
 module SudokuReader (readSudokuFile, SValue, SBoard) where
 import Data.Char
 import Data.Array
