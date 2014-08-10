@@ -47,6 +47,8 @@ setVal (((r,c),v):rs) (r1,c1) newVal | and [r==r1,c==c1] = ((r,c),newVal):rs
 setVal (val:rs) pt newVal = val:(setVal rs pt newVal)
 
 -- return all of the options for the given point on the sudoku board
+--
+-- note: options is never called on a point with a number already in it
 options :: [SValue] -> (Int,Int) -> [Int]
 options vals pt = options' vals pt [1..9]
                   where
