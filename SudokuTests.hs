@@ -34,17 +34,17 @@ optionsTests pt opts fn = "[Board " ++ fn ++ "] Testing options at " ++ (show pt
                               Just board -> assertBool "Options didn't match" $ SS.options (assocs board) pt == opts
                               _ -> assertFailure $ "Could not read Sudoku file " ++ fn
 
-
--- TODO: also refactor, ugly
 compareSolved boardName = "Comparing " ++ boardName ++ ".txt with " ++ boardName ++ ".ans" ~:
-                          filterS (readFile (fn ++ ".txt")) >>= (\boardContents -> filterS (readFile (fn ++ ".ans")) >>=
-                          (\answerContents -> case SR.readSudokuFile boardContents of 
-                                           Just board -> case SS.solve board of 
-                                             Just answer -> (return ((SS.sudokuToStr answer) == answerContents))
-                                             _ -> return False
-                                           _ -> return False)) >>= assertBool "Computed board did not match"
-                          where fn = pathJoin ["boards", boardName]
-                                filterS = liftM filterFormatting
+                          let fn = pathJoin ["boards", boardName]
+                              filterS = liftM filterFormatting in
+                          do
+                            puzzle <- readFile $ fn ++ ".txt"
+                            correct <- filterS $ readFile $ fn ++ ".ans"
+                            case SR.readSudokuFile puzzle of
+                              Just board -> case SS.solve board of
+                                Just answer -> assertBool "Answer not the same" $ filterFormatting (SS.sudokuToStr answer) == correct
+                                _ -> assertFailure "Could not solve board when solution is possible"
+                              _ -> assertFailure $ "Could not read Sudoku file " ++ fn ++ ".txt"
 
 options1 = optionsTests (0,1) [1,3,4,6] "board1.txt"
 options2 = optionsTests (8,0) [1,2,7,8] "board1.txt"
