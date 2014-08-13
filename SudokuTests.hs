@@ -12,6 +12,10 @@ import qualified SudokuReader as SR
 -- utility functions
 pathJoin dirs = intercalate [pathSeparator] dirs
 
+-- pretty printing functions
+validityStr :: Bool -> String
+validityStr v = if v then "Valid" else "Invalid"
+
 -- keep only integers
 filterFormatting str = filter (\x -> x `elem` ['0'..'9']) str
 
@@ -21,6 +25,17 @@ pointInRangeTester p1 p2 tf = ((show p1) ++ " " ++ (show p2)) ~: tf ~=? (SS.poin
 -- two basic test cases
 pointInRange1 = pointInRangeTester (0,0) (1,1) True
 pointInRange2 = pointInRangeTester (0,0) (8,7) False
+
+readFileTest fn isValid = "[Board " ++ fn ++ "] Testing sudoku file read " ~:
+                          do
+                            f <- readFile $ pathJoin ["boards", fn]
+                            case SR.readSudokuFile f of
+                              Just board -> assertBool ((validityStr isValid) ++ " can read file") isValid
+                              _ -> assertBool ((validityStr (not isValid)) ++ " can't read file") $ not isValid
+
+readFileTest1 = readFileTest "board1.txt" True
+readFileTest2 = readFileTest "board2.txt" True
+readFileTest3 = readFileTest "invalidboard1.txt" False
 
 -- assert that opts must equal calculated options
 -- fn does not include directory
@@ -53,12 +68,15 @@ noOptions = optionsTests (3,3) [] "board1.ans"
 allSSTests = [TestLabel "pointInRange1" pointInRange1, 
               TestLabel "pointInRange2" pointInRange2, 
               TestLabel "compareSolved1" $ compareSolved "board1", 
-              TestLabel "compareSolved2" $ compareSolved "board2"]
-
-allSRTests = [TestLabel "options1" options1,
+              TestLabel "compareSolved2" $ compareSolved "board2",
+              TestLabel "options1" options1,
               TestLabel "options2" options2, 
               TestLabel "nooptions" noOptions]
 
+allSRTests = [TestLabel "readFile1" readFileTest1,
+              TestLabel "readFile2" readFileTest2,
+              TestLabel "readFile3" readFileTest3]
+             
 allTests = TestList (allSSTests ++ allSRTests)
 
 main = do runTestTT allTests
