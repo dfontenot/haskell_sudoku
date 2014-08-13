@@ -25,14 +25,15 @@ pointInRange2 = pointInRangeTester (0,0) (8,7) False
 -- assert that opts must equal calculated options
 -- fn does not include directory
 
--- TODO: refactor, ugly
 -- TODO: add functionality to ensure point tested on is set to 0
 -- options is not defined when ran on points not set to 0
-optionsTests pt opts fn = "[Board " ++ fn ++ "] Testing options at " ++ (show pt) ~: 
-                          return (pathJoin ["boards", fn]) >>= readFile >>= 
-                          (\f -> case SR.readSudokuFile f of 
-                              Just board -> return $ (SS.options (assocs board) pt) == opts
-                              _ -> return False) >>= assertBool "Options didn't match"
+optionsTests pt opts fn = "[Board " ++ fn ++ "] Testing options at " ++ (show pt) ~:
+                          do
+                            f <- readFile $ pathJoin ["boards", fn]
+                            case SR.readSudokuFile f of
+                              Just board -> assertBool "Options didn't match" $ SS.options (assocs board) pt == opts
+                              _ -> assertFailure $ "Could not read Sudoku file " ++ fn
+
 
 -- TODO: also refactor, ugly
 compareSolved boardName = "Comparing " ++ boardName ++ ".txt with " ++ boardName ++ ".ans" ~:
