@@ -12,10 +12,6 @@ import qualified SudokuReader as SR
 -- utility functions
 pathJoin dirs = intercalate [pathSeparator] dirs
 
--- pretty printing functions
-validityStr :: Bool -> String
-validityStr v = if v then "Valid" else "Invalid"
-
 -- keep only integers
 filterFormatting str = filter (\x -> x `elem` ['0'..'9']) str
 
@@ -30,8 +26,8 @@ readFileTest fn isValid = "[Board " ++ fn ++ "] Testing sudoku file read " ~:
                           do
                             f <- readFile $ pathJoin ["boards", fn]
                             case SR.readSudokuFile f of
-                              Just board -> assertBool ((validityStr isValid) ++ " can read file") isValid
-                              _ -> assertBool ((validityStr (not isValid)) ++ " can't read file") $ not isValid
+                              Just board -> assertBool "Incorrectly read file"  isValid
+                              _ -> assertBool "Incorrectly could not read file" $ not isValid
 
 readFileTest1 = readFileTest "board1.txt" True
 readFileTest2 = readFileTest "board2.txt" True
